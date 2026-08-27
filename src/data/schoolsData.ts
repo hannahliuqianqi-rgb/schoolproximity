@@ -582,54 +582,6 @@ export const INITIAL_SCHOOLS: School[] = [
     description: 'Premier Hokkien Huay Kuan primary institution located in Sin Ming/Bishan.'
   },
   {
-    id: 'rosyth-school',
-    name: 'Rosyth School',
-    address: '21 Serangoon North Ave 4, Singapore 555855',
-    postalCode: '555855',
-    planningArea: 'Serangoon',
-    phaseCategory: 'Phase 2A',
-    distanceToUser: 2.3,
-    avgPsf1km: 720,
-    psfChangeQoq: 3.4,
-    transactions6m: 115,
-    avg4RoomPrice: 670000,
-    priceTrendYoy: 3.9,
-    trendType: 'Increasing',
-    hdbBlocks1kmCount: 110,
-    mrtStationsNearbyCount: 1,
-    mrtNearby: [
-      { name: 'Serangoon North (CR9 - U/C)', line: 'Cross Island Line', distKm: 0.32 },
-      { name: 'Kovan (NE13)', line: 'North East Line', distKm: 1.4 }
-    ],
-    coordinates: {
-      lat: 1.3734,
-      lng: 103.8744,
-      mapX: 62,
-      mapY: 39
-    },
-    priceHistory: [
-      { month: 'Jan', room3: 430000, room4: 620000, room5: 810000 },
-      { month: 'Dec', room3: 460000, room4: 680000, room5: 860000 }
-    ],
-    transactions: [
-      {
-        id: 'tx-rs-1',
-        schoolId: 'rosyth-school',
-        blockStreet: 'Blk 154 Serangoon North Ave 1',
-        builtYear: 1992,
-        floorAreaSqm: 103,
-        flatType: '4-Room',
-        distanceKm: 0.35,
-        price: 665000,
-        dateStr: 'Jan 2025',
-        storeyRange: '07 to 09',
-        psf: 600
-      }
-    ],
-    upcomingMopUnits: 560,
-    description: 'Renowned Gifted Education Programme (GEP) primary school in Serangoon North.'
-  },
-  {
     id: 'chongfu-school',
     name: 'Chongfu School',
     address: '170 Yishun Ave 6, Singapore 768959',
