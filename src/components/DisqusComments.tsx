@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 
 interface DisqusCommentsProps {
   url?: string;
@@ -25,40 +25,60 @@ export const DisqusComments: React.FC<DisqusCommentsProps> = ({
   title,
   description,
 }) => {
+  const [loadError, setLoadError] = useState<boolean>(false);
+
   useEffect(() => {
-    const canonicalUrl = url || (typeof window !== 'undefined' ? window.location.href : '');
-    const cleanIdentifier = identifier || 'schoolproximity-general';
+    try {
+      const canonicalUrl = url || (typeof window !== 'undefined' ? window.location.href.split('#')[0] : '');
+      const cleanIdentifier = (identifier || 'schoolproximity-general').replace(/[^a-zA-Z0-9-_]/g, '-');
 
-    // If DISQUS is already initialized on the page, reload it with the new school/thread configuration
-    if (typeof window !== 'undefined' && window.DISQUS) {
-      window.DISQUS.reset({
-        reload: true,
-        config: function () {
-          this.page.identifier = cleanIdentifier;
-          this.page.url = canonicalUrl;
-          this.page.title = title;
-        },
-      });
-      return;
-    }
+      // Set up disqus_config callback
+      const setupConfig = function (this: { page: { identifier: string; url: string; title: string } }) {
+        this.page.identifier = cleanIdentifier;
+        this.page.url = canonicalUrl;
+        this.page.title = title;
+      };
 
-    // Set up global disqus_config for first load
-    window.disqus_config = function () {
-      this.page.identifier = cleanIdentifier;
-      this.page.url = canonicalUrl;
-      this.page.title = title;
-    };
+      window.disqus_config = setupConfig as unknown as () => void;
 
-    // Inject embed.js script if not already present
-    const existingScript = document.getElementById('disqus-embed-script');
-    if (!existingScript) {
-      const d = document;
-      const s = d.createElement('script');
-      s.id = 'disqus-embed-script';
-      s.src = 'https://hannah-18.disqus.com/embed.js';
-      s.setAttribute('data-timestamp', String(+new Date()));
-      s.async = true;
-      (d.head || d.body).appendChild(s);
+      // If DISQUS is already initialized on the page, safely reset it with new thread params
+      if (typeof window !== 'undefined' && window.DISQUS && typeof window.DISQUS.reset === 'function') {
+        try {
+          const container = document.getElementById('disqus_thread');
+          if (container) {
+            window.DISQUS.reset({
+              reload: true,
+              config: function () {
+                this.page.identifier = cleanIdentifier;
+                this.page.url = canonicalUrl;
+                this.page.title = title;
+              },
+            });
+          }
+        } catch (resetErr) {
+          console.warn('Disqus reset non-critical notice:', resetErr);
+        }
+        return;
+      }
+
+      // Inject embed.js script safely if not already present
+      const existingScript = document.getElementById('disqus-embed-script');
+      if (!existingScript) {
+        const d = document;
+        const s = d.createElement('script');
+        s.id = 'disqus-embed-script';
+        s.src = 'https://hannah-18.disqus.com/embed.js';
+        s.setAttribute('data-timestamp', String(+new Date()));
+        s.async = true;
+        s.crossOrigin = 'anonymous';
+        s.onerror = () => {
+          console.warn('Disqus embed script could not be loaded directly (possibly blocked by ad-blocker or sandbox).');
+          setLoadError(true);
+        };
+        (d.head || d.body).appendChild(s);
+      }
+    } catch (err) {
+      console.warn('Disqus initialization error:', err);
     }
   }, [url, identifier, title]);
 
@@ -87,6 +107,22 @@ export const DisqusComments: React.FC<DisqusCommentsProps> = ({
       </div>
 
       <div id="disqus_thread" className="min-h-[160px]"></div>
+      
+      {loadError && (
+        <div className="text-xs text-slate-500 bg-slate-50 p-3 rounded-lg border border-slate-200 mt-2">
+          Note: If the discussion box is blocked by your browser or extensions, visit{' '}
+          <a
+            href="https://hannah-18.disqus.com"
+            target="_blank"
+            rel="noreferrer"
+            className="text-indigo-600 font-medium underline"
+          >
+            hannah-18.disqus.com
+          </a>{' '}
+          to participate directly.
+        </div>
+      )}
+
       <noscript>
         Please enable JavaScript to view the{' '}
         <a href="https://disqus.com/?ref_noscript" rel="noreferrer" target="_blank" className="text-indigo-600 underline">
