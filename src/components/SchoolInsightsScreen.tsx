@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { School, FlatType } from '../types';
 import { LiveTransportCard } from './LiveTransportCard';
+import { DisqusComments } from './DisqusComments';
 
 interface SchoolInsightsScreenProps {
   school: School;
@@ -426,6 +427,12 @@ export const SchoolInsightsScreen: React.FC<SchoolInsightsScreenProps> = ({
           </div>
         </div>
       </div>
+
+      {/* Disqus Community & Parent Discussion Thread */}
+      <DisqusComments
+        identifier={`school-${school.id}`}
+        title={school.name}
+      />
     </div>
   );
 };
