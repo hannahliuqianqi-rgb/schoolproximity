@@ -4,6 +4,7 @@ interface DisqusCommentsProps {
   url?: string;
   identifier: string;
   title: string;
+  description?: string;
 }
 
 declare global {
@@ -22,6 +23,7 @@ export const DisqusComments: React.FC<DisqusCommentsProps> = ({
   url,
   identifier,
   title,
+  description,
 }) => {
   useEffect(() => {
     const canonicalUrl = url || (typeof window !== 'undefined' ? window.location.href : '');
@@ -72,7 +74,9 @@ export const DisqusComments: React.FC<DisqusCommentsProps> = ({
               Community & Parent Discussions
             </h3>
             <p className="text-xs text-slate-500">
-              Share balloting experiences, HDB feedback, and proximity advice for <span className="font-semibold text-slate-700">{title}</span>
+              {description || (
+                <>Share balloting experiences, HDB feedback, and proximity advice for <span className="font-semibold text-slate-700">{title}</span></>
+              )}
             </p>
           </div>
         </div>

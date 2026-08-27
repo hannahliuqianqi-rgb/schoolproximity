@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { School, ActiveTab } from '../types';
 import { performDynamicSearch } from '../services/schoolSearch';
+import { DisqusComments } from './DisqusComments';
 
 interface HomeScreenProps {
   schools: School[];
@@ -332,6 +333,15 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
               </span>
             </div>
           </div>
+        </div>
+
+        {/* Community & Parent Comments Forum */}
+        <div className="mt-8">
+          <DisqusComments
+            identifier="schoolproximity-home"
+            title="SchoolProximity Singapore - Parents & Housing Forum"
+            description="Discuss primary school registration strategies, MOE 1km boundary rules, balloting risks, and HDB resale experiences with Singapore parents and property seekers."
+          />
         </div>
       </section>
     </div>
