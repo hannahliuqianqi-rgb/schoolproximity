@@ -1,0 +1,6 @@
+{
+  "name": "SchoolProximity SG",
+  "description": "Singapore Primary School 1km priority zone and HDB resale price proximity intelligence platform.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
