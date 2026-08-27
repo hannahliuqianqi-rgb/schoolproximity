@@ -484,6 +484,437 @@ export const INITIAL_SCHOOLS: School[] = [
     ],
     upcomingMopUnits: 150,
     description: 'Popular SAP school near Beauty World MRT and Bukit Timah Nature Reserve.'
+  },
+  {
+    id: 'nan-chiau-primary',
+    name: 'Nan Chiau Primary School',
+    address: '50 Anchorvale Link, Singapore 544965',
+    postalCode: '544965',
+    planningArea: 'Sengkang',
+    phaseCategory: 'Phase 2B',
+    distanceToUser: 1.2,
+    avgPsf1km: 630,
+    psfChangeQoq: 3.5,
+    transactions6m: 165,
+    avg4RoomPrice: 585000,
+    priceTrendYoy: 3.8,
+    trendType: 'Increasing',
+    hdbBlocks1kmCount: 142,
+    mrtStationsNearbyCount: 2,
+    mrtNearby: [
+      { name: 'Tongkang (SW7)', line: 'Sengkang LRT', distKm: 0.25 },
+      { name: 'Sengkang (NE16/STC)', line: 'North East Line', distKm: 0.85 }
+    ],
+    coordinates: {
+      lat: 1.3923,
+      lng: 103.8904,
+      mapX: 66,
+      mapY: 34
+    },
+    priceHistory: [
+      { month: 'Jan', room3: 410000, room4: 540000, room5: 690000 },
+      { month: 'Dec', room3: 440000, room4: 590000, room5: 740000 }
+    ],
+    transactions: [
+      {
+        id: 'tx-nc-1',
+        schoolId: 'nan-chiau-primary',
+        blockStreet: 'Blk 313A Anchorvale Road',
+        builtYear: 2017,
+        floorAreaSqm: 93,
+        flatType: '4-Room',
+        distanceKm: 0.3,
+        price: 595000,
+        dateStr: 'Jan 2025',
+        storeyRange: '13 to 15',
+        psf: 594
+      }
+    ],
+    upcomingMopUnits: 450,
+    description: 'Top highly subscribed primary school in North-East Singapore with exceptional academic performance.'
+  },
+  {
+    id: 'ai-tong-school',
+    name: 'Ai Tong School',
+    address: '100 Bright Hill Dr, Singapore 579646',
+    postalCode: '579646',
+    planningArea: 'Bishan',
+    phaseCategory: 'Phase 2A',
+    distanceToUser: 1.5,
+    avgPsf1km: 795,
+    psfChangeQoq: 4.1,
+    transactions6m: 98,
+    avg4RoomPrice: 760000,
+    priceTrendYoy: 4.6,
+    trendType: 'Increasing',
+    hdbBlocks1kmCount: 92,
+    mrtStationsNearbyCount: 2,
+    mrtNearby: [
+      { name: 'Bright Hill (TE7/CR13)', line: 'Thomson-East Coast Line', distKm: 0.38 },
+      { name: 'Upper Thomson (TE8)', line: 'Thomson-East Coast Line', distKm: 0.95 }
+    ],
+    coordinates: {
+      lat: 1.3606,
+      lng: 103.8331,
+      mapX: 53,
+      mapY: 42
+    },
+    priceHistory: [
+      { month: 'Jan', room3: 450000, room4: 710000, room5: 920000 },
+      { month: 'Dec', room3: 480000, room4: 770000, room5: 980000 }
+    ],
+    transactions: [
+      {
+        id: 'tx-at-1',
+        schoolId: 'ai-tong-school',
+        blockStreet: 'Blk 408 Sin Ming Ave',
+        builtYear: 1990,
+        floorAreaSqm: 104,
+        flatType: '4-Room',
+        distanceKm: 0.45,
+        price: 755000,
+        dateStr: 'Jan 2025',
+        storeyRange: '10 to 12',
+        psf: 674
+      }
+    ],
+    upcomingMopUnits: 220,
+    description: 'Premier Hokkien Huay Kuan primary institution located in Sin Ming/Bishan.'
+  },
+  {
+    id: 'rosyth-school',
+    name: 'Rosyth School',
+    address: '21 Serangoon North Ave 4, Singapore 555855',
+    postalCode: '555855',
+    planningArea: 'Serangoon',
+    phaseCategory: 'Phase 2A',
+    distanceToUser: 2.3,
+    avgPsf1km: 720,
+    psfChangeQoq: 3.4,
+    transactions6m: 115,
+    avg4RoomPrice: 670000,
+    priceTrendYoy: 3.9,
+    trendType: 'Increasing',
+    hdbBlocks1kmCount: 110,
+    mrtStationsNearbyCount: 1,
+    mrtNearby: [
+      { name: 'Serangoon North (CR9 - U/C)', line: 'Cross Island Line', distKm: 0.32 },
+      { name: 'Kovan (NE13)', line: 'North East Line', distKm: 1.4 }
+    ],
+    coordinates: {
+      lat: 1.3734,
+      lng: 103.8744,
+      mapX: 62,
+      mapY: 39
+    },
+    priceHistory: [
+      { month: 'Jan', room3: 430000, room4: 620000, room5: 810000 },
+      { month: 'Dec', room3: 460000, room4: 680000, room5: 860000 }
+    ],
+    transactions: [
+      {
+        id: 'tx-rs-1',
+        schoolId: 'rosyth-school',
+        blockStreet: 'Blk 154 Serangoon North Ave 1',
+        builtYear: 1992,
+        floorAreaSqm: 103,
+        flatType: '4-Room',
+        distanceKm: 0.35,
+        price: 665000,
+        dateStr: 'Jan 2025',
+        storeyRange: '07 to 09',
+        psf: 600
+      }
+    ],
+    upcomingMopUnits: 560,
+    description: 'Renowned Gifted Education Programme (GEP) primary school in Serangoon North.'
+  },
+  {
+    id: 'chongfu-school',
+    name: 'Chongfu School',
+    address: '170 Yishun Ave 6, Singapore 768959',
+    postalCode: '768959',
+    planningArea: 'Yishun',
+    phaseCategory: 'Phase 2B',
+    distanceToUser: 3.1,
+    avgPsf1km: 565,
+    psfChangeQoq: 2.4,
+    transactions6m: 140,
+    avg4RoomPrice: 525000,
+    priceTrendYoy: 2.7,
+    trendType: 'Moderate',
+    hdbBlocks1kmCount: 155,
+    mrtStationsNearbyCount: 1,
+    mrtNearby: [
+      { name: 'Yishun (NS13)', line: 'North South Line', distKm: 1.1 }
+    ],
+    coordinates: {
+      lat: 1.4385,
+      lng: 103.8502,
+      mapX: 57,
+      mapY: 17
+    },
+    priceHistory: [
+      { month: 'Jan', room3: 370000, room4: 490000, room5: 640000 },
+      { month: 'Dec', room3: 395000, room4: 530000, room5: 680000 }
+    ],
+    transactions: [
+      {
+        id: 'tx-cf-1',
+        schoolId: 'chongfu-school',
+        blockStreet: 'Blk 289 Yishun Ave 6',
+        builtYear: 2018,
+        floorAreaSqm: 92,
+        flatType: '4-Room',
+        distanceKm: 0.25,
+        price: 540000,
+        dateStr: 'Jan 2025',
+        storeyRange: '10 to 12',
+        psf: 545
+      }
+    ],
+    upcomingMopUnits: 380,
+    description: 'High-demand Singapore Hokkien Huay Kuan school serving Yishun North.'
+  },
+  {
+    id: 'radin-mas-primary',
+    name: 'Radin Mas Primary School',
+    address: '1 Bukit Purmei Ave, Singapore 099840',
+    postalCode: '099840',
+    planningArea: 'Bukit Merah',
+    phaseCategory: 'Phase 2C',
+    distanceToUser: 1.8,
+    avgPsf1km: 840,
+    psfChangeQoq: 4.2,
+    transactions6m: 85,
+    avg4RoomPrice: 810000,
+    priceTrendYoy: 4.4,
+    trendType: 'Increasing',
+    hdbBlocks1kmCount: 78,
+    mrtStationsNearbyCount: 2,
+    mrtNearby: [
+      { name: 'HarbourFront (NE1/CC29)', line: 'Interchange', distKm: 0.95 },
+      { name: 'Telok Blangah (CC28)', line: 'Circle Line', distKm: 1.1 }
+    ],
+    coordinates: {
+      lat: 1.2758,
+      lng: 103.8242,
+      mapX: 51,
+      mapY: 76
+    },
+    priceHistory: [
+      { month: 'Jan', room3: 480000, room4: 760000, room5: 980000 },
+      { month: 'Dec', room3: 520000, room4: 820000, room5: 1050000 }
+    ],
+    transactions: [
+      {
+        id: 'tx-rm-1',
+        schoolId: 'radin-mas-primary',
+        blockStreet: 'Blk 109 Bukit Purmei Road',
+        builtYear: 1985,
+        floorAreaSqm: 104,
+        flatType: '4-Room',
+        distanceKm: 0.35,
+        price: 790000,
+        dateStr: 'Jan 2025',
+        storeyRange: '10 to 12',
+        psf: 705
+      }
+    ],
+    upcomingMopUnits: 190,
+    description: 'Historic and popular institution located in Bukit Merah / Telok Blangah.'
+  },
+  {
+    id: 'punggol-green-primary',
+    name: 'Punggol Green Primary School',
+    address: '98 Punggol Walk, Singapore 828772',
+    postalCode: '828772',
+    planningArea: 'Punggol',
+    phaseCategory: 'Phase 2C',
+    distanceToUser: 2.8,
+    avgPsf1km: 655,
+    psfChangeQoq: 3.8,
+    transactions6m: 180,
+    avg4RoomPrice: 605000,
+    priceTrendYoy: 4.1,
+    trendType: 'Increasing',
+    hdbBlocks1kmCount: 160,
+    mrtStationsNearbyCount: 2,
+    mrtNearby: [
+      { name: 'Punggol (NE17/PTC/CP4)', line: 'Interchange', distKm: 0.45 },
+      { name: 'Soo Teck (PW7)', line: 'Punggol LRT', distKm: 0.22 }
+    ],
+    coordinates: {
+      lat: 1.4014,
+      lng: 103.9023,
+      mapX: 69,
+      mapY: 30
+    },
+    priceHistory: [
+      { month: 'Jan', room3: 420000, room4: 560000, room5: 720000 },
+      { month: 'Dec', room3: 460000, room4: 615000, room5: 780000 }
+    ],
+    transactions: [
+      {
+        id: 'tx-pg-1',
+        schoolId: 'punggol-green-primary',
+        blockStreet: 'Blk 269B Punggol Field',
+        builtYear: 2017,
+        floorAreaSqm: 93,
+        flatType: '4-Room',
+        distanceKm: 0.35,
+        price: 615000,
+        dateStr: 'Jan 2025',
+        storeyRange: '13 to 15',
+        psf: 614
+      }
+    ],
+    upcomingMopUnits: 620,
+    description: 'Modern waterfront town primary school within walking distance to Punggol Town Hub and Waterway Point.'
+  },
+  {
+    id: 'st-hildas-primary',
+    name: "St. Hilda's Primary School",
+    address: '2 Tampines Ave 3, Singapore 529706',
+    postalCode: '529706',
+    planningArea: 'Tampines',
+    phaseCategory: 'Phase 2B',
+    distanceToUser: 3.5,
+    avgPsf1km: 645,
+    psfChangeQoq: 2.9,
+    transactions6m: 135,
+    avg4RoomPrice: 595000,
+    priceTrendYoy: 3.2,
+    trendType: 'Moderate',
+    hdbBlocks1kmCount: 130,
+    mrtStationsNearbyCount: 2,
+    mrtNearby: [
+      { name: 'Tampines West (DT31)', line: 'Downtown Line', distKm: 0.45 },
+      { name: 'Tampines (EW2/DT32)', line: 'Interchange', distKm: 0.95 }
+    ],
+    coordinates: {
+      lat: 1.3496,
+      lng: 103.9388,
+      mapX: 78,
+      mapY: 46
+    },
+    priceHistory: [
+      { month: 'Jan', room3: 410000, room4: 550000, room5: 710000 },
+      { month: 'Dec', room3: 445000, room4: 605000, room5: 760000 }
+    ],
+    transactions: [
+      {
+        id: 'tx-sh-1',
+        schoolId: 'st-hildas-primary',
+        blockStreet: 'Blk 838 Tampines St 82',
+        builtYear: 1986,
+        floorAreaSqm: 104,
+        flatType: '4-Room',
+        distanceKm: 0.4,
+        price: 610000,
+        dateStr: 'Jan 2025',
+        storeyRange: '07 to 09',
+        psf: 545
+      }
+    ],
+    upcomingMopUnits: 310,
+    description: 'Esteemed Anglican mission school and top-choice primary school in Tampines.'
+  },
+  {
+    id: 'chij-st-nicholas-girls',
+    name: "CHIJ St. Nicholas Girls' School (Primary)",
+    address: '501 Ang Mo Kio St 13, Singapore 569405',
+    postalCode: '569405',
+    planningArea: 'Ang Mo Kio',
+    phaseCategory: 'Phase 2A',
+    distanceToUser: 2.0,
+    avgPsf1km: 660,
+    psfChangeQoq: 3.1,
+    transactions6m: 105,
+    avg4RoomPrice: 620000,
+    priceTrendYoy: 3.5,
+    trendType: 'Moderate',
+    hdbBlocks1kmCount: 115,
+    mrtStationsNearbyCount: 1,
+    mrtNearby: [
+      { name: 'Mayflower (TE6)', line: 'Thomson-East Coast Line', distKm: 0.35 },
+      { name: 'Yio Chu Kang (NS15)', line: 'North South Line', distKm: 1.3 }
+    ],
+    coordinates: {
+      lat: 1.3741,
+      lng: 103.8347,
+      mapX: 53,
+      mapY: 38
+    },
+    priceHistory: [
+      { month: 'Jan', room3: 420000, room4: 580000, room5: 750000 },
+      { month: 'Dec', room3: 450000, room4: 630000, room5: 810000 }
+    ],
+    transactions: [
+      {
+        id: 'tx-sng-1',
+        schoolId: 'chij-st-nicholas-girls',
+        blockStreet: 'Blk 118 Ang Mo Kio Ave 4',
+        builtYear: 1980,
+        floorAreaSqm: 93,
+        flatType: '4-Room',
+        distanceKm: 0.3,
+        price: 630000,
+        dateStr: 'Jan 2025',
+        storeyRange: '08 to 10',
+        psf: 629
+      }
+    ],
+    upcomingMopUnits: 240,
+    description: 'Premier SAP Catholic girls school with strong academic heritage and affiliated secondary section.'
+  },
+  {
+    id: 'south-view-primary',
+    name: 'South View Primary School',
+    address: '10 Choa Chu Kang Ave 2, Singapore 689904',
+    postalCode: '689904',
+    planningArea: 'Choa Chu Kang',
+    phaseCategory: 'Phase 2C',
+    distanceToUser: 4.2,
+    avgPsf1km: 550,
+    psfChangeQoq: 2.2,
+    transactions6m: 125,
+    avg4RoomPrice: 510000,
+    priceTrendYoy: 2.5,
+    trendType: 'Moderate',
+    hdbBlocks1kmCount: 145,
+    mrtStationsNearbyCount: 2,
+    mrtNearby: [
+      { name: 'South View (BP2)', line: 'Bukit Panjang LRT', distKm: 0.15 },
+      { name: 'Choa Chu Kang (NS4/JS1/BP1)', line: 'Interchange', distKm: 0.8 }
+    ],
+    coordinates: {
+      lat: 1.3815,
+      lng: 103.7468,
+      mapX: 28,
+      mapY: 36
+    },
+    priceHistory: [
+      { month: 'Jan', room3: 360000, room4: 480000, room5: 620000 },
+      { month: 'Dec', room3: 385000, room4: 515000, room5: 660000 }
+    ],
+    transactions: [
+      {
+        id: 'tx-sv-1',
+        schoolId: 'south-view-primary',
+        blockStreet: 'Blk 211 Choa Chu Kang Central',
+        builtYear: 1993,
+        floorAreaSqm: 103,
+        flatType: '4-Room',
+        distanceKm: 0.35,
+        price: 520000,
+        dateStr: 'Jan 2025',
+        storeyRange: '07 to 09',
+        psf: 469
+      }
+    ],
+    upcomingMopUnits: 280,
+    description: 'Top-tier primary school in Western Singapore with high subscription rate in Phase 2C.'
   }
 ];
 

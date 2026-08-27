@@ -1,5 +1,6 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { School, ActiveTab } from '../types';
+import { performDynamicSearch } from '../services/schoolSearch';
 
 interface HomeScreenProps {
   schools: School[];
@@ -13,30 +14,66 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
   setActiveTab
 }) => {
   const [searchInput, setSearchInput] = useState('');
-  const [suggestions, setSuggestions] = useState<School[]>([]);
+  const [localSuggestions, setLocalSuggestions] = useState<School[]>([]);
+  const [oneMapSuggestions, setOneMapSuggestions] = useState<School[]>([]);
+  const [isSearchingOneMap, setIsSearchingOneMap] = useState(false);
+  const [showDropdown, setShowDropdown] = useState(false);
+  const searchContainerRef = useRef<HTMLDivElement>(null);
 
-  const handleInputChange = (val: string) => {
-    setSearchInput(val);
-    if (val.trim().length > 1) {
-      const filtered = schools.filter(
-        s =>
-          s.name.toLowerCase().includes(val.toLowerCase()) ||
-          s.planningArea.toLowerCase().includes(val.toLowerCase())
-      );
-      setSuggestions(filtered);
-    } else {
-      setSuggestions([]);
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (searchContainerRef.current && !searchContainerRef.current.contains(event.target as Node)) {
+        setShowDropdown(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
+
+  useEffect(() => {
+    if (searchInput.trim().length < 2) {
+      setLocalSuggestions([]);
+      setOneMapSuggestions([]);
+      setIsSearchingOneMap(false);
+      setShowDropdown(false);
+      return;
     }
-  };
+
+    // 1. Instant local match
+    const filtered = schools.filter(
+      s =>
+        s.name.toLowerCase().includes(searchInput.toLowerCase()) ||
+        s.planningArea.toLowerCase().includes(searchInput.toLowerCase()) ||
+        s.address.toLowerCase().includes(searchInput.toLowerCase()) ||
+        s.postalCode.includes(searchInput.trim())
+    );
+    setLocalSuggestions(filtered);
+    setShowDropdown(true);
+
+    // 2. Debounced OneMap API query
+    setIsSearchingOneMap(true);
+    const timer = setTimeout(async () => {
+      try {
+        const { oneMapMatches } = await performDynamicSearch(searchInput, schools);
+        // Exclude ones that already exist in local matches by name
+        const uniqueOneMap = oneMapMatches.filter(
+          om => !schools.some(ls => ls.name.toLowerCase() === om.name.toLowerCase())
+        );
+        setOneMapSuggestions(uniqueOneMap);
+      } catch {
+        setOneMapSuggestions([]);
+      } finally {
+        setIsSearchingOneMap(false);
+      }
+    }, 350);
+
+    return () => clearTimeout(timer);
+  }, [searchInput, schools]);
 
   const handleSearchSubmit = (e?: React.FormEvent) => {
     if (e) e.preventDefault();
     if (searchInput.trim()) {
-      const match = schools.find(
-        s =>
-          s.name.toLowerCase().includes(searchInput.toLowerCase()) ||
-          s.planningArea.toLowerCase().includes(searchInput.toLowerCase())
-      );
+      const match = localSuggestions[0] || oneMapSuggestions[0];
       if (match) {
         onSelectSchool(match);
         setActiveTab('hdb-insights');
@@ -48,8 +85,9 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
     }
   };
 
-  const handleQuickSchoolClick = (school: School) => {
+  const handleSelectSchool = (school: School) => {
     onSelectSchool(school);
+    setShowDropdown(false);
     setActiveTab('hdb-insights');
   };
 
@@ -59,8 +97,8 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
       <section className="relative w-full max-w-[1400px] mx-auto px-4 md:px-6 py-10 md:py-16 flex flex-col md:flex-row items-center gap-8 md:gap-10">
         <div className="w-full md:w-1/2 flex flex-col gap-5 z-10">
           <div className="inline-flex items-center gap-2 px-3 py-1 rounded-md bg-white border border-slate-200 shadow-xs w-fit">
-            <span className="w-2 h-2 rounded-full bg-indigo-600"></span>
-            <span className="text-xs font-semibold text-slate-700">Official MOE 1km Priority Analytics</span>
+            <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+            <span className="text-xs font-semibold text-slate-700">Live OneMap Geocoding & MOE 1km Priority</span>
           </div>
 
           <h1 className="font-bold text-3xl sm:text-4xl md:text-5xl leading-tight text-slate-900 tracking-tight">
@@ -71,11 +109,11 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
           </h1>
 
           <p className="text-sm md:text-base text-slate-600 leading-relaxed max-w-lg">
-            Navigate the Singapore property market with precision. Identify HDB flats within 1km of priority primary schools with live transacted pricing and MOP availability.
+            Search <strong>any Singapore primary school</strong>, postal code, or address. Live dynamic geocoding powered by OneMap with instant 1km/2km HDB transacted prices and MOP pipeline analytics.
           </p>
 
           {/* Search Bar */}
-          <div className="relative w-full mt-1">
+          <div className="relative w-full mt-1" ref={searchContainerRef}>
             <form
               onSubmit={handleSearchSubmit}
               className="flex items-center bg-white border border-slate-300 rounded-lg shadow-xs overflow-hidden p-1.5 focus-within:ring-2 focus-within:ring-indigo-500 focus-within:border-indigo-500 transition-all"
@@ -86,10 +124,16 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
               <input
                 type="text"
                 value={searchInput}
-                onChange={(e) => handleInputChange(e.target.value)}
-                placeholder="Search primary school (e.g. Nan Chiau, Nanyang, Tao Nan)..."
+                onChange={(e) => setSearchInput(e.target.value)}
+                onFocus={() => {
+                  if (searchInput.trim().length >= 2) setShowDropdown(true);
+                }}
+                placeholder="Type any primary school, postal code or street (e.g. Nan Chiau, Ai Tong, 268097)..."
                 className="w-full bg-transparent border-none text-xs md:text-sm px-3 py-1.5 focus:outline-none text-slate-800 placeholder:text-slate-400"
               />
+              {isSearchingOneMap && (
+                <div className="w-4 h-4 mr-2 border-2 border-indigo-600 border-t-transparent rounded-full animate-spin shrink-0"></div>
+              )}
               <button
                 type="submit"
                 className="bg-indigo-600 hover:bg-indigo-700 text-white px-5 py-2 rounded-md font-semibold text-xs transition-colors shrink-0 shadow-xs cursor-pointer"
@@ -99,25 +143,74 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
             </form>
 
             {/* Suggestions dropdown */}
-            {suggestions.length > 0 && (
-              <div className="absolute left-0 right-0 top-full mt-1.5 bg-white rounded-lg shadow-lg border border-slate-200 py-1.5 z-40 max-h-60 overflow-y-auto custom-scrollbar">
-                {suggestions.map((s) => (
-                  <button
-                    key={s.id}
-                    onClick={() => handleQuickSchoolClick(s)}
-                    className="w-full px-4 py-2.5 text-left hover:bg-slate-50 flex items-center justify-between group transition-colors cursor-pointer"
-                  >
-                    <div>
-                      <span className="font-semibold text-xs text-slate-800 group-hover:text-indigo-600 transition-colors">
-                        {s.name}
-                      </span>
-                      <span className="text-[11px] text-slate-500 ml-2">({s.planningArea})</span>
+            {showDropdown && (localSuggestions.length > 0 || oneMapSuggestions.length > 0) && (
+              <div className="absolute left-0 right-0 top-full mt-1.5 bg-white rounded-lg shadow-xl border border-slate-200 py-2 z-50 max-h-80 overflow-y-auto custom-scrollbar">
+                {/* Local MOE School Matches */}
+                {localSuggestions.length > 0 && (
+                  <div>
+                    <div className="px-3 py-1 text-[10px] font-bold text-slate-400 uppercase tracking-wider bg-slate-50 border-b border-slate-100 flex justify-between items-center">
+                      <span>Primary School Directory ({localSuggestions.length})</span>
+                      <span className="text-[9px] text-indigo-600 font-semibold">MOE Verified</span>
                     </div>
-                    <span className="text-[11px] bg-emerald-50 text-emerald-700 border border-emerald-200 px-2 py-0.5 rounded font-semibold">
-                      Avg ${s.avgPsf1km} psf
-                    </span>
-                  </button>
-                ))}
+                    {localSuggestions.map((s) => (
+                      <button
+                        key={s.id}
+                        onClick={() => handleSelectSchool(s)}
+                        className="w-full px-4 py-2 text-left hover:bg-slate-50 flex items-center justify-between group transition-colors cursor-pointer border-b border-slate-50 last:border-none"
+                      >
+                        <div className="min-w-0 pr-2">
+                          <div className="flex items-center gap-1.5">
+                            <span className="material-symbols-outlined text-[14px] text-indigo-600">school</span>
+                            <span className="font-semibold text-xs text-slate-800 group-hover:text-indigo-600 transition-colors truncate">
+                              {s.name}
+                            </span>
+                          </div>
+                          <span className="text-[11px] text-slate-500 block truncate ml-5">
+                            {s.address} • {s.planningArea}
+                          </span>
+                        </div>
+                        <span className="text-[10px] bg-emerald-50 text-emerald-700 border border-emerald-200 px-2 py-0.5 rounded font-semibold shrink-0">
+                          Avg ${s.avgPsf1km} psf
+                        </span>
+                      </button>
+                    ))}
+                  </div>
+                )}
+
+                {/* OneMap Dynamic Live Results */}
+                {oneMapSuggestions.length > 0 && (
+                  <div className={localSuggestions.length > 0 ? 'mt-2 pt-1 border-t border-slate-100' : ''}>
+                    <div className="px-3 py-1 text-[10px] font-bold text-slate-400 uppercase tracking-wider bg-slate-50 border-b border-slate-100 flex justify-between items-center">
+                      <span>OneMap Live Address Results ({oneMapSuggestions.length})</span>
+                      <span className="text-[9px] text-emerald-600 font-semibold flex items-center gap-1">
+                        <span className="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
+                        OneMap API
+                      </span>
+                    </div>
+                    {oneMapSuggestions.map((s) => (
+                      <button
+                        key={s.id}
+                        onClick={() => handleSelectSchool(s)}
+                        className="w-full px-4 py-2 text-left hover:bg-indigo-50/50 flex items-center justify-between group transition-colors cursor-pointer border-b border-slate-50 last:border-none"
+                      >
+                        <div className="min-w-0 pr-2">
+                          <div className="flex items-center gap-1.5">
+                            <span className="material-symbols-outlined text-[14px] text-emerald-600">location_on</span>
+                            <span className="font-semibold text-xs text-slate-800 group-hover:text-indigo-600 transition-colors truncate">
+                              {s.name}
+                            </span>
+                          </div>
+                          <span className="text-[11px] text-slate-500 block truncate ml-5">
+                            {s.address} ({s.postalCode})
+                          </span>
+                        </div>
+                        <span className="text-[10px] bg-indigo-50 text-indigo-700 border border-indigo-200 px-2 py-0.5 rounded font-semibold shrink-0">
+                          1km Priority
+                        </span>
+                      </button>
+                    ))}
+                  </div>
+                )}
               </div>
             )}
           </div>
@@ -125,13 +218,13 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
           {/* Quick Popular Schools Pills */}
           <div className="flex flex-wrap items-center gap-1.5 pt-1">
             <span className="text-xs text-slate-500 font-medium">Quick Select:</span>
-            {schools.slice(0, 4).map((s) => (
+            {schools.slice(0, 5).map((s) => (
               <button
                 key={s.id}
-                onClick={() => handleQuickSchoolClick(s)}
+                onClick={() => handleSelectSchool(s)}
                 className="text-xs font-medium px-2.5 py-1 bg-white hover:bg-slate-50 border border-slate-200 hover:border-indigo-400 text-slate-700 rounded shadow-xs transition-all cursor-pointer"
               >
-                {s.name.replace(' Primary School', '').replace(' Primary', '')}
+                {s.name.replace(' Primary School', '').replace(' Primary', '').replace(' School', '')}
               </button>
             ))}
           </div>

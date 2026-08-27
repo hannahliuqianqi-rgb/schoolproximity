@@ -1,5 +1,6 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect, useRef } from 'react';
 import { School, FlatType, SchoolPhase } from '../types';
+import { performDynamicSearch } from '../services/schoolSearch';
 
 interface MapSearchScreenProps {
   schools: School[];
@@ -24,15 +25,66 @@ export const MapSearchScreen: React.FC<MapSearchScreenProps> = ({
   const [activeBlockTooltip, setActiveBlockTooltip] = useState<string | null>(null);
   const [mobileListOpen, setMobileListOpen] = useState<boolean>(false);
 
-  // Filter schools based on selected filters
+  // Dynamic Search in Map Sidebar
+  const [searchQuery, setSearchQuery] = useState('');
+  const [oneMapResults, setOneMapResults] = useState<School[]>([]);
+  const [isSearchingOneMap, setIsSearchingOneMap] = useState(false);
+  const [showSearchResults, setShowSearchResults] = useState(false);
+  const mapSearchRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (mapSearchRef.current && !mapSearchRef.current.contains(event.target as Node)) {
+        setShowSearchResults(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
+
+  useEffect(() => {
+    if (searchQuery.trim().length < 2) {
+      setOneMapResults([]);
+      setIsSearchingOneMap(false);
+      return;
+    }
+
+    setIsSearchingOneMap(true);
+    const timer = setTimeout(async () => {
+      try {
+        const { oneMapMatches } = await performDynamicSearch(searchQuery, schools);
+        const uniqueOneMap = oneMapMatches.filter(
+          om => !schools.some(ls => ls.name.toLowerCase() === om.name.toLowerCase())
+        );
+        setOneMapResults(uniqueOneMap);
+      } catch {
+        setOneMapResults([]);
+      } finally {
+        setIsSearchingOneMap(false);
+      }
+    }, 350);
+
+    return () => clearTimeout(timer);
+  }, [searchQuery, schools]);
+
+  // Filter schools based on selected filters and optional search query
   const filteredSchools = useMemo(() => {
     return schools.filter(school => {
+      if (searchQuery.trim()) {
+        const q = searchQuery.toLowerCase();
+        const matchesSearch =
+          school.name.toLowerCase().includes(q) ||
+          school.planningArea.toLowerCase().includes(q) ||
+          school.address.toLowerCase().includes(q) ||
+          school.postalCode.includes(searchQuery.trim());
+        if (!matchesSearch) return false;
+      }
       if (phaseFilter !== 'All' && school.phaseCategory !== phaseFilter) return false;
       if (school.avg4RoomPrice > maxPriceFilter) return false;
       if (school.distanceToUser && school.distanceToUser > maxDistanceFilter) return false;
       return true;
     });
-  }, [schools, phaseFilter, maxPriceFilter, maxDistanceFilter]);
+  }, [schools, searchQuery, phaseFilter, maxPriceFilter, maxDistanceFilter]);
 
   const flatTypes: FlatType[] = ['4-Room', '3-Room', '5-Room', 'Executive'];
 
@@ -55,6 +107,72 @@ export const MapSearchScreen: React.FC<MapSearchScreenProps> = ({
             >
               <span className="material-symbols-outlined text-[18px]">close</span>
             </button>
+          </div>
+
+          {/* Live Dynamic Search Bar */}
+          <div className="relative" ref={mapSearchRef}>
+            <div className="relative">
+              <span className="material-symbols-outlined absolute left-2.5 top-1/2 -translate-y-1/2 text-slate-400 text-[16px]">
+                search
+              </span>
+              <input
+                type="text"
+                value={searchQuery}
+                onChange={(e) => {
+                  setSearchQuery(e.target.value);
+                  setShowSearchResults(true);
+                }}
+                onFocus={() => {
+                  if (searchQuery.trim().length >= 2) setShowSearchResults(true);
+                }}
+                placeholder="Search any school, street, or postal..."
+                className="w-full pl-8 pr-7 py-1.5 rounded bg-slate-900 border border-slate-700 text-xs text-white placeholder:text-slate-500 focus:outline-none focus:border-indigo-500"
+              />
+              {isSearchingOneMap ? (
+                <div className="absolute right-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 border-2 border-indigo-500 border-t-transparent rounded-full animate-spin"></div>
+              ) : searchQuery ? (
+                <button
+                  onClick={() => setSearchQuery('')}
+                  className="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-white"
+                >
+                  <span className="material-symbols-outlined text-[14px]">close</span>
+                </button>
+              ) : null}
+            </div>
+
+            {/* Dynamic OneMap Live Dropdown */}
+            {showSearchResults && oneMapResults.length > 0 && (
+              <div className="absolute left-0 right-0 top-full mt-1 bg-slate-900 border border-slate-700 rounded-lg shadow-xl py-1.5 z-50 max-h-60 overflow-y-auto custom-scrollbar">
+                <div className="px-3 py-1 text-[10px] font-bold text-slate-400 uppercase tracking-wider border-b border-slate-800 flex justify-between items-center">
+                  <span>OneMap Address Search</span>
+                  <span className="text-[9px] text-emerald-400 font-semibold">Live OneMap</span>
+                </div>
+                {oneMapResults.map((omSchool) => (
+                  <button
+                    key={omSchool.id}
+                    onClick={() => {
+                      onSelectSchool(omSchool);
+                      setShowSearchResults(false);
+                      setSearchQuery('');
+                    }}
+                    className="w-full px-3 py-2 text-left hover:bg-slate-800 flex items-center justify-between group transition-colors border-b border-slate-800/60 last:border-none cursor-pointer"
+                  >
+                    <div className="min-w-0 pr-2">
+                      <div className="flex items-center gap-1.5">
+                        <span className="material-symbols-outlined text-[13px] text-emerald-400">location_on</span>
+                        <p className="font-semibold text-xs text-white group-hover:text-indigo-400 truncate">
+                          {omSchool.name}
+                        </p>
+                      </div>
+                      <p className="text-[10px] text-slate-400 truncate ml-4.5">{omSchool.address}</p>
+                    </div>
+                    <span className="text-[9px] bg-indigo-950 text-indigo-300 border border-indigo-800 px-1.5 py-0.5 rounded font-semibold shrink-0">
+                      Select
+                    </span>
+                  </button>
+                ))}
+              </div>
+            )}
           </div>
 
           {/* Flat Configuration Buttons */}

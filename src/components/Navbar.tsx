@@ -1,5 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { ActiveTab, School } from '../types';
+import { performDynamicSearch } from '../services/schoolSearch';
 
 interface NavbarProps {
   activeTab: ActiveTab;
@@ -23,17 +24,12 @@ export const Navbar: React.FC<NavbarProps> = ({
   onSignOut
 }) => {
   const [searchQuery, setSearchQuery] = useState('');
+  const [localMatches, setLocalMatches] = useState<School[]>([]);
+  const [oneMapMatches, setOneMapMatches] = useState<School[]>([]);
+  const [isSearchingOneMap, setIsSearchingOneMap] = useState(false);
   const [showSearchDropdown, setShowSearchDropdown] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const searchRef = useRef<HTMLDivElement>(null);
-
-  const filteredSchools = searchQuery.trim()
-    ? schools.filter(s =>
-        s.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        s.planningArea.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        s.address.toLowerCase().includes(searchQuery.toLowerCase())
-      )
-    : [];
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -44,6 +40,40 @@ export const Navbar: React.FC<NavbarProps> = ({
     document.addEventListener('mousedown', handleClickOutside);
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
+
+  useEffect(() => {
+    if (searchQuery.trim().length < 2) {
+      setLocalMatches([]);
+      setOneMapMatches([]);
+      setIsSearchingOneMap(false);
+      return;
+    }
+
+    const filtered = schools.filter(s =>
+      s.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      s.planningArea.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      s.address.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      s.postalCode.includes(searchQuery.trim())
+    );
+    setLocalMatches(filtered);
+
+    setIsSearchingOneMap(true);
+    const timer = setTimeout(async () => {
+      try {
+        const { oneMapMatches: omResults } = await performDynamicSearch(searchQuery, schools);
+        const uniqueOneMap = omResults.filter(
+          om => !schools.some(ls => ls.name.toLowerCase() === om.name.toLowerCase())
+        );
+        setOneMapMatches(uniqueOneMap);
+      } catch {
+        setOneMapMatches([]);
+      } finally {
+        setIsSearchingOneMap(false);
+      }
+    }, 350);
+
+    return () => clearTimeout(timer);
+  }, [searchQuery, schools]);
 
   const handleSelectSchool = (school: School) => {
     onSelectSchool(school);
@@ -146,28 +176,59 @@ export const Navbar: React.FC<NavbarProps> = ({
               </div>
 
               {/* Autocomplete Dropdown */}
-              {showSearchDropdown && filteredSchools.length > 0 && (
-                <div className="absolute right-0 top-full mt-1.5 w-80 bg-white rounded-lg shadow-lg border border-slate-200 py-1.5 z-50 overflow-hidden">
-                  <div className="px-3 py-1 text-[10px] font-bold uppercase tracking-wider text-slate-400 border-b border-slate-100">
-                    Matched Primary Schools
-                  </div>
-                  {filteredSchools.map((s) => (
-                    <button
-                      key={s.id}
-                      onClick={() => handleSelectSchool(s)}
-                      className="w-full px-3 py-2 text-left hover:bg-slate-50 flex items-center justify-between group transition-colors cursor-pointer"
-                    >
-                      <div>
-                        <p className="font-semibold text-xs text-slate-800 group-hover:text-indigo-600 transition-colors">
-                          {s.name}
-                        </p>
-                        <p className="text-[11px] text-slate-500">{s.planningArea}</p>
+              {showSearchDropdown && (localMatches.length > 0 || oneMapMatches.length > 0) && (
+                <div className="absolute right-0 top-full mt-1.5 w-84 bg-white rounded-lg shadow-xl border border-slate-200 py-1.5 z-50 overflow-hidden max-h-80 overflow-y-auto custom-scrollbar">
+                  {localMatches.length > 0 && (
+                    <div>
+                      <div className="px-3 py-1 text-[10px] font-bold uppercase tracking-wider text-slate-400 border-b border-slate-100 bg-slate-50 flex justify-between items-center">
+                        <span>MOE Primary Schools ({localMatches.length})</span>
+                        <span className="text-[9px] text-indigo-600 font-semibold">Verified</span>
                       </div>
-                      <span className="text-[10px] font-semibold px-2 py-0.5 bg-emerald-50 text-emerald-700 border border-emerald-200 rounded">
-                        {s.phaseCategory}
-                      </span>
-                    </button>
-                  ))}
+                      {localMatches.map((s) => (
+                        <button
+                          key={s.id}
+                          onClick={() => handleSelectSchool(s)}
+                          className="w-full px-3 py-2 text-left hover:bg-slate-50 flex items-center justify-between group transition-colors cursor-pointer border-b border-slate-50 last:border-none"
+                        >
+                          <div className="min-w-0 pr-2">
+                            <p className="font-semibold text-xs text-slate-800 group-hover:text-indigo-600 transition-colors truncate">
+                              {s.name}
+                            </p>
+                            <p className="text-[11px] text-slate-500 truncate">{s.planningArea} • {s.postalCode}</p>
+                          </div>
+                          <span className="text-[10px] font-semibold px-2 py-0.5 bg-emerald-50 text-emerald-700 border border-emerald-200 rounded shrink-0">
+                            Avg ${s.avgPsf1km}
+                          </span>
+                        </button>
+                      ))}
+                    </div>
+                  )}
+
+                  {oneMapMatches.length > 0 && (
+                    <div className={localMatches.length > 0 ? 'mt-1 pt-1 border-t border-slate-100' : ''}>
+                      <div className="px-3 py-1 text-[10px] font-bold uppercase tracking-wider text-slate-400 border-b border-slate-100 bg-slate-50 flex justify-between items-center">
+                        <span>OneMap Live Address Search ({oneMapMatches.length})</span>
+                        <span className="text-[9px] text-emerald-600 font-semibold">OneMap</span>
+                      </div>
+                      {oneMapMatches.map((s) => (
+                        <button
+                          key={s.id}
+                          onClick={() => handleSelectSchool(s)}
+                          className="w-full px-3 py-2 text-left hover:bg-indigo-50/50 flex items-center justify-between group transition-colors cursor-pointer border-b border-slate-50 last:border-none"
+                        >
+                          <div className="min-w-0 pr-2">
+                            <p className="font-semibold text-xs text-slate-800 group-hover:text-indigo-600 transition-colors truncate">
+                              {s.name}
+                            </p>
+                            <p className="text-[11px] text-slate-500 truncate">{s.address}</p>
+                          </div>
+                          <span className="text-[10px] font-semibold px-1.5 py-0.5 bg-indigo-50 text-indigo-700 border border-indigo-200 rounded shrink-0">
+                            1km Priority
+                          </span>
+                        </button>
+                      ))}
+                    </div>
+                  )}
                 </div>
               )}
             </div>

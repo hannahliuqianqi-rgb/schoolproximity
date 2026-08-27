@@ -19,7 +19,7 @@ import { ContactSupportModal } from './components/ContactSupportModal';
 
 export default function App() {
   const [activeTab, setActiveTab] = useState<ActiveTab>('home');
-  const [schools] = useState<School[]>(INITIAL_SCHOOLS);
+  const [schools, setSchools] = useState<School[]>(INITIAL_SCHOOLS);
   const [selectedSchool, setSelectedSchool] = useState<School>(INITIAL_SCHOOLS[0]);
 
   // Modals state
@@ -35,13 +35,22 @@ export default function App() {
     setTimeout(() => setToastMessage(null), 4000);
   };
 
+  const handleSelectOrAddSchool = (school: School) => {
+    setSchools((prev) => {
+      const exists = prev.some((s) => s.id === school.id || s.name.toLowerCase() === school.name.toLowerCase());
+      if (exists) return prev;
+      return [school, ...prev];
+    });
+    setSelectedSchool(school);
+  };
+
   const handleOpenMopModal = (school: School) => {
     setMopModalSchool(school);
     setMopModalOpen(true);
   };
 
   const handleViewSchoolInsights = (school: School) => {
-    setSelectedSchool(school);
+    handleSelectOrAddSchool(school);
     setActiveTab('hdb-insights');
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
@@ -64,7 +73,7 @@ export default function App() {
         setActiveTab={setActiveTab}
         schools={schools}
         selectedSchool={selectedSchool}
-        onSelectSchool={setSelectedSchool}
+        onSelectSchool={handleSelectOrAddSchool}
         onOpenSignIn={() => setSignInModalOpen(true)}
         user={user}
         onSignOut={() => {
@@ -78,7 +87,7 @@ export default function App() {
         {activeTab === 'home' && (
           <HomeScreen
             schools={schools}
-            onSelectSchool={setSelectedSchool}
+            onSelectSchool={handleSelectOrAddSchool}
             setActiveTab={setActiveTab}
           />
         )}
@@ -87,7 +96,7 @@ export default function App() {
           <MapSearchScreen
             schools={schools}
             selectedSchool={selectedSchool}
-            onSelectSchool={setSelectedSchool}
+            onSelectSchool={handleSelectOrAddSchool}
             onViewSchoolInsights={handleViewSchoolInsights}
           />
         )}
@@ -96,7 +105,7 @@ export default function App() {
           <SchoolInsightsScreen
             school={selectedSchool}
             schools={schools}
-            onSelectSchool={setSelectedSchool}
+            onSelectSchool={handleSelectOrAddSchool}
             onOpenMopModal={handleOpenMopModal}
           />
         )}
