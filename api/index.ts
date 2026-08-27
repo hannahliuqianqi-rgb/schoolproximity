@@ -1,6 +1,7 @@
 import { Router } from 'express';
 import ltaRouter from './lta';
 import uraRouter from './ura';
+import onemapRouter from './onemap';
 
 const apiRouter = Router();
 
@@ -12,6 +13,9 @@ apiRouter.get('/health', (_req, res) => {
     timestamp: new Date().toISOString(),
   });
 });
+
+// Mount OneMap endpoints under /api/onemap
+apiRouter.use('/onemap', onemapRouter);
 
 // Mount URA endpoints under /api/ura
 apiRouter.use('/ura', uraRouter);
