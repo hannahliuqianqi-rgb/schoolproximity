@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { School, FlatType } from '../types';
+import { LiveTransportCard } from './LiveTransportCard';
 
 interface SchoolInsightsScreenProps {
   school: School;
@@ -326,6 +327,12 @@ export const SchoolInsightsScreen: React.FC<SchoolInsightsScreenProps> = ({
               </button>
             )}
           </section>
+
+          {/* Live Commute & Transit Hub (LTA DataMall) */}
+          <LiveTransportCard
+            schoolName={school.name}
+            defaultBusStop={school.postalCode ? '83139' : '83139'}
+          />
         </div>
 
         {/* Sidebar (Right Column) */}
